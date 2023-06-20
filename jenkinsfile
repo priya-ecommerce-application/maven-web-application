@@ -1,6 +1,8 @@
 node{
 def mavenhome = tool name: 'maven3.9.2'
 echo "job name is:${JOB_NAME}"
+node('nodes'){
+}
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
 stage('checkoutcode'){
 git credentialsId: '30886294-23cd-4ed0-9781-01c2e3192166', url: 'https://github.com/priya-ecommerce-application/maven-web-application.git'
