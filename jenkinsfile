@@ -1,0 +1,22 @@
+node{
+def mavenhome = tool name: 'maven3.9.2'
+echo "job name is:${JOB_NAME}"
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+stage('checkoutcode'){
+git credentialsId: '30886294-23cd-4ed0-9781-01c2e3192166', url: 'https://github.com/priya-ecommerce-application/maven-web-application.git'
+}
+stage('build'){
+sh "${mavenhome}/bin/mvn clean package"
+}
+/*stage('generatesonarqubereport'){
+sh "${mavenhome}/bin/mvn sonar:sonar"
+}*/
+stage('uploadtoaartifacts'){
+sh "${mavenhome}/bin/mvn clean package deploy"
+}
+stage('deploytotomcat'){
+sshagent(['cc097e91-5f88-4e39-ac6e-2df8438235a2']) {
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.47.101:/opt/apache-tomcat-9.0.75/webapps/"
+}
+}
+}
